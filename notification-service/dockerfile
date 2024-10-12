@@ -1,0 +1,18 @@
+# Base image
+FROM python:3.12.3
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install dependencies
+COPY requirments.txt .
+
+
+RUN pip install --no-cache-dir -r requirments.txt
+
+# Copy the application code
+COPY . .
+
+
+# Run the FastAPI server
+CMD ["python", "app/main.py"]

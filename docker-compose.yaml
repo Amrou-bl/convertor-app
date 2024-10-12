@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway  # Adjust the path to your API Gateway service
+    container_name: api-gateway
+    ports:
+      - "8000:8000"  # Exposing port 8000
+    depends_on:
+      - redis  # If Redis is used by the gateway
+      - auth-service  # API Gateway relies on Auth service
+    environment:
+      REDIS_HOST: redis
+      AUTH_SERVICE_URL: http://auth-service:8001  # Points to Auth service
+    networks:
+      - app-network
+
+  auth-service:
+    build:
+      context: ./auth-service  # Adjust the path to your Auth service
+    container_name: auth-service
+    ports:
+      - "8001:8001"  # Exposing port for Auth service
+    networks:
+      - app-network
+
+  converter-service:
+    build:
+      context: ./converter-service  # Adjust the path to your Converter service
+    container_name: converter-service
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+    networks:
+      - app-network
+
+  notification-service:
+    build:
+      context: ./notification-service  # Adjust the path to your Notification service
+    container_name: notification-service
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+    networks:
+      - app-network
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
